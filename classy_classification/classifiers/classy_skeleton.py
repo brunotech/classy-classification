@@ -155,11 +155,7 @@ class classySkeletonFewShot(classySkeleton):
             List[dict]: list of key-class proba-value dict
         """
 
-        pred_dict = []
-        for pred in pred_results:
-            pred_dict.append({label: value for label, value in zip(self.le.classes_, pred)})
-
-        return pred_dict
+        return [dict(zip(self.le.classes_, pred)) for pred in pred_results]
 
     def set_training_data(self, data: dict = None):
         """_summary_
@@ -224,11 +220,7 @@ class classySkeletonFewShotMultiLabel(classySkeleton):
         :type pred_results: List[List]
         :return: A list of dictionaries.
         """
-        pred_dict = []
-        for pred in pred_results:
-            pred_dict.append({label: value for label, value in zip(self.data.keys(), pred)})
-
-        return pred_dict
+        return [dict(zip(self.data.keys(), pred)) for pred in pred_results]
 
     def set_training_data(self, data: dict = None):
         """
@@ -237,10 +229,9 @@ class classySkeletonFewShotMultiLabel(classySkeleton):
         :param data: a dictionary of lists of strings. The keys are the labels, and the values are the samples
         :type data: dict
         """
-        if data:  # update if overwritten
+        if data:
             self.data = data
 
-        if data:  # update if overwritten
             self.set_classification_model()
 
         X = np.unique([sample for values in self.data.values() for sample in values])
@@ -263,14 +254,13 @@ class classyExternal:
 
         # return self.session.run(None, ort_inputs)[0]
         docs = list(docs)
-        if isinstance(docs, list):
-            if isinstance(docs[0], str):
-                pass
-            elif isinstance(docs[0], Doc):
-                docs = [doc.text for doc in docs]
-        else:
+        if not isinstance(docs, list):
             raise ValueError("This should be a List")
 
+        if isinstance(docs[0], str):
+            pass
+        elif isinstance(docs[0], Doc):
+            docs = [doc.text for doc in docs]
         return self.encoder.encode(docs)
 
     def set_embedding_model(self, model: str = None, device: str = "cpu"):
@@ -285,16 +275,12 @@ class classyExternal:
             self.device = device
 
         if onnx is None:
-            if self.device in ["gpu", "cuda", 0]:
-                self.device = None  # If None, checks if a GPU can be used.
-            else:
-                self.device = "cpu"
+            self.device = None if self.device in ["gpu", "cuda", 0] else "cpu"
             self.encoder = SentenceTransformer(self.model, device=self.device)
+        elif device in {"gpu", "cuda", 0}:
+            self.encoder = SentenceTransformer(self.model, device=self.device, quantize=False)
         else:
-            if device in ["gpu", "cuda", 0]:
-                self.encoder = SentenceTransformer(self.model, device=self.device, quantize=False)
-            else:
-                self.encoder = SentenceTransformer(self.model, device=self.device, quantize=True)
+            self.encoder = SentenceTransformer(self.model, device=self.device, quantize=True)
 
         if model:  # update if overwritten
             self.set_training_data()

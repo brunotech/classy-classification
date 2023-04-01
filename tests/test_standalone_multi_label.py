@@ -6,8 +6,7 @@ from classy_classification.examples.data import training_data, validation_data
 
 @pytest.fixture
 def standalone_multi_label():
-    classifier = classyClassifier(data=training_data, multi_label=True)
-    return classifier
+    return classyClassifier(data=training_data, multi_label=True)
 
 
 def test_standalone_multi_label(standalone_multi_label):

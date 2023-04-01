@@ -8,8 +8,7 @@ from classy_classification.examples.data import training_data, validation_data
 
 @pytest.fixture
 def standalone():
-    classifier = classyClassifier(data=training_data)
-    return classifier
+    return classyClassifier(data=training_data)
 
 
 def test_standalone(standalone):

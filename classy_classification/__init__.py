@@ -94,8 +94,8 @@ def make_text_categorizer(
                     multi_label=multi_label,
                 )
         if multi_label:
-            if model:
-                return classySpacyExternalFewShotMultiLabel(
+            return (
+                classySpacyExternalFewShotMultiLabel(
                     nlp=nlp,
                     name=name,
                     data=data,
@@ -104,8 +104,8 @@ def make_text_categorizer(
                     include_doc=include_doc,
                     include_sent=include_sent,
                 )
-            else:
-                return classySpacyExternalFewShotMultiLabel(
+                if model
+                else classySpacyExternalFewShotMultiLabel(
                     nlp=nlp,
                     name=name,
                     data=data,
@@ -113,25 +113,25 @@ def make_text_categorizer(
                     include_doc=include_doc,
                     include_sent=include_sent,
                 )
+            )
+        if model:
+            return classySpacyExternalFewShot(
+                nlp=nlp,
+                name=name,
+                data=data,
+                device=device,
+                model=model,
+                config=config,
+                include_doc=include_doc,
+                include_sent=include_sent,
+            )
         else:
-            if model:
-                return classySpacyExternalFewShot(
-                    nlp=nlp,
-                    name=name,
-                    data=data,
-                    device=device,
-                    model=model,
-                    config=config,
-                    include_doc=include_doc,
-                    include_sent=include_sent,
-                )
-            else:
-                return classySpacyExternalFewShot(
-                    nlp=nlp,
-                    name=name,
-                    data=data,
-                    device=device,
-                    config=config,
-                    include_doc=include_doc,
-                    include_sent=include_sent,
-                )
+            return classySpacyExternalFewShot(
+                nlp=nlp,
+                name=name,
+                data=data,
+                device=device,
+                config=config,
+                include_doc=include_doc,
+                include_sent=include_sent,
+            )

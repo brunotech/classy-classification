@@ -79,14 +79,11 @@ class classySpacyInternal(classySpacy):
         Returns:
             List[float]: a list of embeddings
         """
-        if isinstance(docs, list):
-            if isinstance(docs[0], str):
-                docs = self.nlp.pipe(docs, disable=["tagger", "parser", "attribute_ruler", "lemmatizer", "ner"])
-            elif isinstance(docs[0], Doc):
-                pass
-        else:
+        if not isinstance(docs, list):
             raise ValueError("This should be a List")
 
+        if isinstance(docs[0], str):
+            docs = self.nlp.pipe(docs, disable=["tagger", "parser", "attribute_ruler", "lemmatizer", "ner"])
         embeddings = []
         for doc in docs:
             if doc.has_vector:
@@ -165,10 +162,7 @@ class classySpacyExternalZeroShot(classySpacy, classySkeleton):
         if importlib.util.find_spec("fast-sentence-transformers") is None:
             from transformers import pipeline
 
-            if self.device in ["gpu", "cuda", 0]:
-                self.device = 0
-            else:
-                self.device = -1
+            self.device = 0 if self.device in ["gpu", "cuda", 0] else -1
             self.pipeline = pipeline("zero-shot-classification", model=self.model, device=self.device, top_k=None)
         else:
             from fast_sentence_transformers.txtai import HFOnnx
